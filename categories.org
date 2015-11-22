@@ -1,0 +1,138 @@
+* Limits as Universals
+    Okay, so what *is* a (co)limit? A limit is when you have a universal construction that "projects down" to its base components (in a way that commutes with all the internal structure of the base). So, for example, consider functors from the two point category {1,2} to a category C: a limit of this functor is going to be an object that factors through the image of this graph, so for example an image of the graph is going to be two objects with no arrows between them at all. Then a limit is going to be an object that projects down onto those two objects, which also means that any other object that can project down to the image of this function. 
+
+    A colimit, on the other hand, is something that the image of a graph projects *into*. Now, this connects to the idea of a "universal arrow" A universal arrow from an object c *to* a functor F : D -> C is a pair of an object r : D and an arrow u : c -> F r such that if there is any other arrow g : c to F s then there is a (unique) function g' : r -> s such that g = F g' . u
+
+    Universal arrows to "forgetful" functors correspond to free constructions (which you can conceptually see with the fact that the "free" construction is always completely determined by the base object, so any mapping to another "forgotten" object must be uniquely reflected by a mapping in the enriched setting determined by base construction. Okay, that was way too abstract: let's instead appeal to the free category of graphs example from Mac Lane. In this example we had that any mapping of the free category to another category must have been determined uniquely by the action of the mapping on the base arrows of the graph.
+
+    Bleh, I feel like I'm explaining this poorly but I think I get it. 
+
+    Oh, right, there's also the universal elements: universal elements are what mac lane uses to try and understand things like quotient sets or normal subgroups.
+
+    I think universal *elements* never quite made sense to me so let's review them now quickly: a universal element of a functor H : D -> Set is a pair of r : D and an e \in H r such that for every other d : D and x \in H d then there is a *unique* arrow f : r -> d such that (H f) e = x. What does this mean? Basically that the action of the functor H must somehow be captured uniquely by its action on this one element. For example, let's consider other pairs (r , x : H r) then there *must* be a function f : r -> r such that (H f) e = x. What does this mean?? Well it means there's an isomorphism between D(r,r) and H r, right?? This is where the Yoneda lemma comes from, right???
+
+    A universal element, though, is just a universal arrow from the one point set to the functor H
+
+    Ah! Okay, I was on the right track with the isomorphism thing the general formulation is that a pair (r : D, u : c -> S r) is universal from c to S exactly when D(r, d) is iso to C(c, S d) (which obvs gives the iso between arrows and elements you'd expect in the c = * case)
+
+    Now, universal arrows basically are what give us the Yoneda lemma: how? Because we can show that every representation of a functor K by an element r is determined by a universal arrow from * to K (r, u : * -> K r, i.e. a universal element of K and that the iso that maps D(r, -) to K is given by f : r -> d ===> K(f')(e) where e : K r is the universal element.
+
+    Now, how the do we know that that this actually a natural iso? Oh, right, well by the definition of *universal element* there's an iso between elements of K(d) and f : r --> d which means that D(r, -) and K are naturally isomorphic. Duh! Well if each representation of K is determined this way from exactly one element of K r, then it's going to turn out that the natural isos are determined exactly by the elements of K. That's the Yoneda lemma!!!
+
+    Alright, so how do universal arrows connect to understanding limits and colimits? Well we need to understand the diagonal functor for any index category J and a category C
+
+  /\ : C -> C^J
+  /\(c)(j) = c
+  /\(c)(f : j -> j') = id_c
+
+then what we call c a colimit of F when there is a universal arrow FROM F : J -> C TO /\(c), that universal arrow is the universal colimiting cone. OPing everything will give us limits as universal arrows FROM /\(c) TO F (i.e. they're injective)
+
+Oh, also, as a little footnote there's the fact that any functor from a small category to Set is a canonical colimit of a diagram of representable functors, i.e. on some level every presheaf is *really* built from representable functors, but I don't know yet what the use of understanding this is. Hrmmm I think this might matter when we're talking about sieves and things like that. Or maybe it has to do with the way certain things can pass under colimits
+* Adjunction Review
+  We basically know all about adjunctions, but it's good to remember that
+  + they can be determined by either their unit or counit
+  + their unit and counit are examples of universal arrows (well, really a family of them at each object)
+  + if we have the iso between hom-sets then we can build the unit and counit
+
+i.e. if we have F : X -> A, G : A -> X and phi : A( F x , a) ~ X(x, G a) then we have that n : x -> G F x is given by n = phi(id_{F x}) and e : F G a -> a is given by e = \phi^-1(id_{G a})
+
+* Subobjects
+  Oh, so a neat note I got from Awodey's book:
+  subobjects are defined as monics
+  we can make categories of subobjects by taking the objects of the category as the monics and the arrows of the category are the arrows in the corresponding slice category C / X. Since monics have the property that
+   m . f = m . g ==> f = g
+   then we have that any two arrows witnessing subset-of must be equal, i.e. 
+   if m < m' by f *and* by g then that means we have
+    m' = m . f = m . g ===> f = g
+
+huh, one thing that sometimes bugs me: is this equality between arrows really decidable?
+* Generalized elements
+Also there's a notion of "generalized element" that is kinda important to talk about that Awodey uses constantly (well, at least when talking about logical things such as equalizers and subojects)
+
+  So, like, one of the things that appears here is that "generalized elements" can be said to be elements of a subobject iff they factor through the subobject. This also leads to equalizers being understood as the "set" of all generalized elements that are equal under the two functions being equalized. This is actually kinda cool!
+
+Now, Awodey makes vague mention of the idea that generalized elements can be thought of open terms in a term language and while I know that's true in some contexts I'm still not entirely sure if that always applies. 
+
+Ah! There's more to this story, actually, reading through a bit more of Pitt's categorical logic it seems the actual point here is that "generalized elements" can almost be thought of as something like non-standard numbers? They're things we can't actually name as terms, in some sense. We *can* argue that if, with respect to every generalized element, two functions agree then they *must* be the same. This is sorta obvious if you consider just the identity operation as a "generalized element" so if f . id = g . id then, shockingly, f = g.
+
+Now, well-pointedness is when there's enough *actual* elements that we can infer, logically, that if two functions agree on all elements then the two functions are the same: i.e. it's about whether the principle of functional extensionality actually works. 
+
+* Polynomial categories
+  So Lambek and Scott introduces this whole notion of "polynomial categories" which are, basically, categories with an axiom, or an "indeterminate" arrow attached. You then take the proper quotienting over the axiom to ensure that all the appropriate compositions and all of that are respected. Now that quotienting seems pretty simple and I'm not sure what could go wrong: I guess it's just making sure that things like limits and adjoints all work correctly. 
+
+  So I get that logically these are categories that are representing the addition of axioms and that they are the kleisli category that comes from the comonad of adding an assumption to the context (i.e. the comonad (A x -)). Okay, so the one cute thing that lambek and scott actually accomplish is showing that there's a notion of substituting in an actual arrow in for the axiom, if it exists, that essentially leaves all the proofs unchanged (e.g. the functor that performs the substitution preserves the cartesian closed structure).
+
+  And then there's the notion of functional completeness. As far as I can tell, functional completeness is all about the idea that for every polynomial in an indeterminate arrow then there is a *unique* open term that corresponds to the use of this axiom. What does this actually buy us though? I guess it just shows us the thing that we'd hope would be obvious: that hypothesising an axiom via the context should have the exact same power and function as asserting it in the general theory as a new term. I mean, hell, isn't this kinda what locales are? Well, I guess not entirely.
+
+  Well, no, yeah they kinda are: you're attaching an indeterminate, proving things about it, and then substituting in an actual theory.
+
+  So, yeah, look the polynomial thing is kinda cute and is how they show things like substitution but it also seems a little odd to my eyes just because thinking of it as "open terms" seems easier.
+
+  Although! On the other hand there's this whole neat business about proving that the type theory with an arrow attached is universal over mappings to models of the type theory. I think I'm saying it kinda wrong but it's something kinda like that. The idea is that if you take the term-model of the category, functors from the term model to another category must factor through the term model with a polynomial to the same category. 
+
+  So, yeah, there are some neat things you can do with the polynomial business. I take it back. It's useful.
+* Natural Numbers Objects and Iteration
+  A natural numbers object is just an object that represents the inductive schema of the peano numbers. Nothing more to see here than that.
+
+  Are natural numbers objects limits or colimits of something though? I mean I guess they probably are since they're initial among a particular category of graphs.
+* Internal Languages and the adjointness of models and languages
+  Okay, so in typed calculi we have that they "exactly" model the closed cartesian categories.
+
+  For simple-type-theory we have that they "exactly" model the topoi. Topos semantics is, in fact, an expansion of Henkin semantics according to Lambek and Scott. There is, from the topos perspective, Enough Models that we have a completeness theorem (but this also means that there's enough models, right, that we can't nail down peano arithmetic uniquely)
+
+  Oh! One of the other really cool things that is that the equality in the internal language *is* the equality of arrows in the topos. That's pretty neat! It means you can actually use the proof language in a way that's complete over all topoi. 
+
+  But what does this really mean for mathematics and logic? Well, that's kindof a good question. I mean we can argue that the purview of HOL is thus anything that "looks like a topos" and, thus, from the ASD paper on philosophy we cna thus think of anything that is sufficiently "set-like" as the customer for HOL.
+
+  I do kinda like this whole "customers" approach to logic: that the point of logic is not to be the fundamental underlying substrate of mathematics and philosophy but rather as a formalism for organizing and abstracting our thoughts about particular branches of mathematics. 
+
+  One of the things to point out is that topos theory is useful for discussing *set-like* mathematics, so things that we want to do that are *like sets* can be easily described this way. Now, there's a lot of things that aren't set-like though, right? Homotopy categories aren't "set like". Domains aren't "set like". Spaces of topological spaces aren't "set like". These all have *moar structure* than sets. This means, I think, that in order to actually have a logic where the types *inherently* have the kind of structure we need we need to explore moar potent logics.
+
+  For example, that's the whole point of ASD right? If we encode a logic that axiomatically describes all the topologic-like things and continuous-like functions then we can do lots of interesting things all about topology and computation!
+* Intuitionism and Sheaves  
+  Oh, right, another cute thing was the idea that since sheaves could be viewed as "sets that change over time" then they might actually capture some of the intuitionistic view of constructions as inherently taking time.
+* C-monoids
+  Okay, a neat thing that lambek and scott do is talk about C-monoids, basically closed cartesian categories that have only a single object: now it seems trivial to say that the untyped lambda calculus can be represented by such a thing. (of course, it's slightly more complicated: you need to basically do a deflations like thing in order to turn it into a CCC) The thing that needs to be done is show that such a thing can be made!! This is where Dana Scott's construction comes into play, with the whole omega-colimit business/i.e. the inverse limit construction
+* Kan Extensions
+  Kan extensions are perhaps a little bit weird. They come in left and right flavors which are kinda basic at first but what I'm trying to grasp is their utility.
+
+  So the idea is that we start with categories A,B,C and functors
+  + X : A -> C
+  + F : A -> B
+then a right kan extension *of* X *along* F is a functor R : B -> C and a natural transformation \eta : RF -> X (so this isn't saying that they're *the same* so much as there's a natural "embedding" of RF into X). There's always a universal property, though, isn't there? In this case the universal property is that if there's another functor G : B -> C and \mu : GF -> X then there must be a *unique* \delta : G -> R such that 
+  + \eta . \delta_F = \mu  
+i.e. that \mu must factor through \eta
+ 
+The left kan extension is just the op of this kan extension, but to be a bit more explicit we can be clear that
+
+the left kan extension *of* X *along* F is a functor L : B -> C and a natural transformation \eta : X -> LF such that \eta is universal (i.e. any other left kan candidate factors through \eta via a natural transformation L -> G)
+
+Okay, so what does this really *mean*? What data does a natural transformation give us in terms of hom sets? Well a natural transformation from F to G means that for every f : C(a,b) then G f : D(G a, G b) can be described entirely by F f and \eta_a \eta_b. Does this tell us anything about the hom sets? Iunno.  
+
+
+** All concepts are Kan extensions
+   + limits are right Kan extensions of F along the terminal functor E : C -> 1
+   + colimits are left Kan extensions of F along the terminal functor E : C -> 1
+The logic of this, I think, is that since 1 is the terminal category then the right or left Kan extension picks out *an object* of the category and the natural transformation thus gives us the cones
+
+   Adjoints are kan extensions related to the identity functor. Left adjoints are given by right kan extensions of the identity functor *along* the functor we're taking the adjoint of. Right adjoints are, similarly, given by the left kan extensions of the identity functor *along* the functor. How does that work? I'm not entirely sure what the intuition is.
+* Ends and Coends
+* Term models in categorical logic 
+  Okay, so I'd never really thought before about what the *point* of term models are. I mean I'd kinda thought of them before as models of logic that you made out of syntax and by quotienting by the equality of the type theory *but* there's something more to it, really. I thought of it as kinda vacuous but it's *not*. It's fundamentally about showing that the rules of the type theory describe the same rules of reasoning that can be encoded in the type of category. So, basically the term model shows that the logic supports AT LEAST the rules of the class of mathematical objects and then constructing syntax out of the category shows that the syntax consists of *no more* than the rules of the category. 
+
+  I think I have those directions correctly.
+* Algebraic theories
+  And algebraic theory is a set of 
+  + sorts
+  + function symbols (constants are a subset of these)
+  + equations that are the axioms
+
+You can interpret it in basically any category with finite products that supports the right arrows and equalities
+
+The basic ideas are that 
+  + terms are given by arrows from a product to an object
+    + \Gamma \vdash m : A ====> [ \Gamma ] --> [ A ]
+  + closed terms are just 1 --> [ A ]
+  + substitution is a composition
+  + weakening is natural because it's just given by the projections from products
+
