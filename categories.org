@@ -136,3 +136,9 @@ The basic ideas are that
   + substitution is a composition
   + weakening is natural because it's just given by the projections from products
 
+* Grothendieck Construction
+  https://en.wikipedia.org/wiki/Grothendieck_construction
+  This shows up a /lot/ in type theory, because the grothendieck construction can be seen, essentially, as the formal construction that allows us to extend a well-formed types in context to be a new extended context, e.g. \Gamma |- A type ----> \Gamma , x : A ctxt
+
+  The first time I ever actually saw this was in Hoffman and Streicher's Groupoid Interpretation of Type Theory paper cite:Hofmann96thegroupoid 
+
