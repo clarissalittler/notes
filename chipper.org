@@ -20,7 +20,37 @@ Branching is obviously also going to be a problem because if you incorrectly pre
 
 Ah, also, there's possible dependency of ALU calculations on further instructions. For example, if you have something like an add that puts a value in a register that's then used in a multiply instruction in the next instruction, you're not going to do the writeback the first add into the register until long after you've retrieved the out of date values for the mult instruction. How do you prevent this? Well, basically you need to have a temporary storage for the results of the various phases so that you can "forward" the values. I'm not entirely sure how this is implemented, but the principle is simple enough. You have some way to keep track of whether or not you're referring to a value that's stored as a temporary result and then getting it from the location. I imagine that this slightly slows down each clock cycle, but it is probably worth it for the pipelining benefit. 
 *** Implementing Pipelining
+    In the first section, we deal with how the 5-clock cycle phase of an unpipelined simplified MIPS.
 
+    1. Instruction fetch cycle
+       1. IR <- Mem[PC]
+       2. NPC <- PC + 4; (i.e. temporary program counter incremented by four bytes)
+    2. Instruction decode/ register fetch
+       1. A <- Regs[rs]
+       2. B <- Regs[rt]
+       3. Imm <- sign-extended immediate field of IR
+    3. different phases depending on the instruction
+       - memory reference :: output <- A + Imm (indexing into memory)
+       - register only calculations :: output <- op A B
+       - register-immediate calculation :: output <- op A Imm
+       - branch calculation :: output <- NPC + (Imm << 2); cond <- (A == 0)
+    4. memory access/branch completion
+       - all phases update the PC first from NPC
+       - memory load :: lmd <- mem[output]
+       - memory write :: mem[output] <- B
+       - branch :: if cond then pc <- output
+    5. write output into registers
+
+Now to turn this into a pipelined version we need to add registers between each phase. These registers hold the data from our intermmediary registers in the above version.
+
+**** Addenda
+     I don't find a lot of the details about how to connect everything particularly interesting. From skimming, as far as I can tell there's a lot of details about how to forward the information between registers to deal with data dependency in pipelining and details about how and where to deal with the pipelining hazards. For example, the PC is going to be written whenever an IF phase ends and we have the ID cycle compute the branch target and the cond-test. This means adding another arithmetic module just for the ID phase since the normal alu module is busy. Whenver 
+**** Difficulty of implementation
+     Exceptions are the main thing discussed here. Since synchronous instructions happen within the instruction themselves. When an exception occurs then we need to save the state of the instructions and get back to them later. If there wasn't a branch we just go back to the saved instruction and continue fetching, otherwise we need to evaluate the branch condition and go from there. Delayed branches complicate this because we simultaneously need to know the branch that we're supposed to be evaluating as well as the pointers to the instructions we're supposed to be executing while we compute the branch.
+
+     Skimming this section it sounds like the MIPS example is one of the easier architectures to handle exceptions. In comparison there are some architectures where operations can take more than one clock cycle, which is a definite complication, and architectures where state is changing in the middle of an instruction being execute rather than at the well-defined operation points of MIPS.
+
+     The tl;dr lesson of this section and the previous one is that a certain amount of overhead is needed to make sure that pipelining has as few delays as possible and that the particular of the instruction set design makes a big difference about how easy it is to deal with interrupts.
 ** Ch1
 *** Estimating reliability
     Well the main thing we covered on the topic is that mean time to failure of any one of an independent set of components can be estimated as the inverse of the sum of their failures-per-unit-time. For a set of redundant components, we estimate the reliability to be 
