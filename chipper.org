@@ -1,0 +1,10 @@
+* Computer Architecture Notes
+** Pipelining
+   What's the basic point of pipelining? Well, ideally it's that instruction execution is split into separate phases such that each clock cycle we can start on a new instruction and move all the others currently "in the pipeline" further down the line. The phases given for the example architecture in the book splits things into five phases for each instruction:
+   1. instruction fetching
+   2. instruction decode and register fetching
+   3. alu instruction execution
+   4. loading/writing memory
+   5. writing back to result registers
+
+So in principle you should have an average of 1 instruction finishing per clock cycle, but reality rarely mimics the ideal. The first example given in the text for pipeline fail was if there was only a single communication channel with memory, so after a load instruction is started then when the load actually needs to touch the memory the start of the next instruction, which involves fetching the instruction from memory first, needs to be delayed by a cycle.
