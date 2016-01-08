@@ -1,10 +1,57 @@
-* Computer Architecture Notes
-** Pipelining
-   What's the basic point of pipelining? Well, ideally it's that instruction execution is split into separate phases such that each clock cycle we can start on a new instruction and move all the others currently "in the pipeline" further down the line. The phases given for the example architecture in the book splits things into five phases for each instruction:
-   1. instruction fetching
-   2. instruction decode and register fetching
-   3. alu instruction execution
-   4. loading/writing memory
-   5. writing back to result registers
+#+STARTUP: latexpreview
 
-So in principle you should have an average of 1 instruction finishing per clock cycle, but reality rarely mimics the ideal. The first example given in the text for pipeline fail was if there was only a single communication channel with memory, so after a load instruction is started then when the load actually needs to touch the memory the start of the next instruction, which involves fetching the instruction from memory first, needs to be delayed by a cycle.
+* Computer Architecture Notes
+** Clock signals
+   https://en.wikipedia.org/wiki/Clock_signal
+** App C: Pipelining
+    I find the wiki entry more readable than the chapter, but we'll go ahead and use both:  https://en.wikipedia.org/wiki/Instruction_pipelining 
+https://en.wikipedia.org/wiki/Branch_predictor
+   
+    What's the basic point of pipelining? Well, ideally it's that instruction execution is split into separate phases such that each clock cycle we can start on a new instruction and move all the others currently "in the pipeline" further down the line. The phases given for the example architecture in the book splits things into five phases for each instruction:
+    1. instruction fetching
+    2. instruction decode and register fetching
+    3. alu instruction execution
+    4. loading/writing memory
+    5. writing back to result registers
+
+ So in principle you should have an average of 1 instruction finishing per clock cycle, but reality rarely mimics the ideal. The first example given in the text for pipeline fail was if there was only a single communication channel with memory, so after a load instruction is started then when the load actually needs to touch the memory the start of the next instruction, which involves fetching the instruction from memory first, needs to be delayed by a cycle.
+
+Branching is obviously also going to be a problem because if you incorrectly predict the branching then you're going to start processing instructions that you weren't supposed to execute. Now, one of the ways to deal with this is just to proceed as if the branch wasn't taken and, if indeed it wasn't, just continue onwards but if it was then you can cancel the instruction you're currently working on and then in the next cycle load the instruction at the updated PC. You can, apparently, also try reordering things so that you perform instructions that are guaranteed to occur whether or not the branch is taken while you're waiting to compute the branch address. The text calls this delayed branching. As for branch prediction, there's a couple of kinds of branch prediction that the text mentions. The first is what they call "static prediction" which involves ill-described schema for deciding whether a branch should be assumed taken or assumed not-taken. The logic behind this is that most branches are the same every time. Of course, you can't predict all of these things in advance perfectly without running afoul of the halting problem, but I can totally imagine that you can have pretty good heuristics and that's really what all of this is about: heuristics. Dynamic branching involving having a number of bits to keep track of the branching history in order to modify the predictions. If you have just one bit then you're going to predict the last result of the branch (or whatever other branch mapped to it in the tiny collision prone hash table) and if it's wrong then we update the prediction. If you have n-bits then you only change the prediction on the nth mistake. 
+
+Ah, also, there's possible dependency of ALU calculations on further instructions. For example, if you have something like an add that puts a value in a register that's then used in a multiply instruction in the next instruction, you're not going to do the writeback the first add into the register until long after you've retrieved the out of date values for the mult instruction. How do you prevent this? Well, basically you need to have a temporary storage for the results of the various phases so that you can "forward" the values. I'm not entirely sure how this is implemented, but the principle is simple enough. You have some way to keep track of whether or not you're referring to a value that's stored as a temporary result and then getting it from the location. I imagine that this slightly slows down each clock cycle, but it is probably worth it for the pipelining benefit. 
+*** Implementing Pipelining
+
+** Ch1
+*** Estimating reliability
+    Well the main thing we covered on the topic is that mean time to failure of any one of an independent set of components can be estimated as the inverse of the sum of their failures-per-unit-time. For a set of redundant components, we estimate the reliability to be 
+
+\[
+   \frac{\frac{MTTF_{ind}}{n}}{\frac{MTTR^{n-1}_{ind}}{MTTF^n_{ind}}}
+\]
+
+which reduces to 
+
+\[
+  \frac{MTTF^n_{ind}}{n MTTR^{n-1}}
+\]
+
+or in the case of just two components this is simply 
+
+\[
+  \frac{MTTF^{2}}{2 MTTR}
+\]
+
+*** Power usage
+    Dynamic power of switching a transistor is ~~ capacitive load x V^2, which means that whenever we can reduce the voltage we're going to save on energy proportional to the square in the reduction.
+*** Benchmarks
+    Basically the point of this section is that most benchmarks are useless because they've been over-engineered so as to be completely not objective measures of performance. They're either rigged, too trivial, or don't generally reflect real usage. The book does, however, like the SPEC set of benchmarks and talks about how performance should be compared with the geometric mean of ratios of the performance of a computer on the program by the reference computer performance, i.e. 
+
+\[
+\frac{Execution_{reference}}{Execution_{test}}
+\]
+
+as the rations, and as a reminder because this is a concept I use about once a lifetime, here's the wiki page for the [[https://en.wikipedia.org/wiki/Geometric_mean][geometric mean]].
+*** Amdahl's Law
+\[
+  speedup_{overall} = \frac{1}{(1-\text{frac}) + \frac{frac}{speedup_{enhanced}}}
+\]
