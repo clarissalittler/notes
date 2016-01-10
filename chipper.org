@@ -1,5 +1,4 @@
 #+STARTUP: latexpreview
-
 * Computer Architecture Notes
 ** Clock signals
    https://en.wikipedia.org/wiki/Clock_signal
@@ -85,3 +84,5 @@ as the rations, and as a reminder because this is a concept I use about once a l
 \[
   speedup_{overall} = \frac{1}{(1-\text{frac}) + \frac{frac}{speedup_{enhanced}}}
 \]
+** Ch 3: More on Pipelining
+   https://en.wikipedia.org/wiki/Superscalar_processor
