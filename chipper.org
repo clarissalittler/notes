@@ -70,6 +70,9 @@ or in the case of just two components this is simply
   \frac{MTTF^{2}}{2 MTTR}
 \]
 
+Oh, so because I was silly and messed this up before I want to make a note that if there *is* no time to repair the short hand for estimating the MTTF for a collection of devices involves taking the number of failures per unit time and then dividing the number of failures needed for a collective failure by the failures per unit time. 
+
+I overthought this massively and tried to use the fact the memorylessness to come up with what I thought was a more accurate equation, but I messed it up. This is all based in approximations on [[https://en.wikipedia.org/wiki/Poisson_distribution][Poisson distributions]] which is what I should read a bit more about if I want to feel more comfortable with the approximations. I'm a terrible overthinker when I don't know the full story.
 *** Power usage
     Dynamic power of switching a transistor is ~~ capacitive load x V^2, which means that whenever we can reduce the voltage we're going to save on energy proportional to the square in the reduction.
 *** Benchmarks
