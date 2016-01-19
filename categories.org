@@ -119,10 +119,14 @@ The logic of this, I think, is that since 1 is the terminal category then the ri
 * Ends and Coends
   https://en.wikipedia.org/wiki/End_(category_theory)
   https://en.wikipedia.org/wiki/Extranatural_transformation
-  ^-- so wikipedia gives the definition of ends and coends in terms of extranatural transformations,
-  which isn't actually a definition I'd seen before. I'm much more use to the Mac Lane style of defining them in terms of dinatural transformations, where dinatural transformations are an analog of natural transformations for a bi-functor (one covariant one contravariant argument).
 
-  Ends and coends are basically (co)limit-like things for dinatural transformations.  
+  Ends and coends are basically (co)limit-like things for dinatural transformations.  Now, dinatural transformations are a family of morphisms much like natural transformations except that instead of being morphisms between two functors it's between two functors that are contravariant in their first argument and covariant in their second. In this case, each member of the family $\tau$ is going to be a morphism $\tau_c : F(c,c) \rightarrow G(c,c)$ such that the diagonal diagrams you'd expect commute, i.e. for a function $f : c \rightarrow c'$ then we need that
+
+   $G(1,f) \cdot \tau_c \cdot F(f,1) = G(f,1) \cdot \tau_{c'} \cdot G(1,f)$
+
+Now, the same way that a (co)limit is a universal natural transformation from(to) the constant functor to the functor in question, a (co)end is a universal dinatural transformation from(to) the constant bifunctor to the bifunctor in question.
+
+What's the use of such a thing? Well, for one case we can actually define natural transformations in terms of ends because the /end/ of the composed functor $hom(U \cdot, V \cdot) is the set of natural transformations between these two functors. 
 * Term models in categorical logic 
   Okay, so I'd never really thought before about what the *point* of term models are. I mean I'd kinda thought of them before as models of logic that you made out of syntax and by quotienting by the equality of the type theory *but* there's something more to it, really. I thought of it as kinda vacuous but it's *not*. It's fundamentally about showing that the rules of the type theory describe the same rules of reasoning that can be encoded in the type of category. So, basically the term model shows that the logic supports AT LEAST the rules of the class of mathematical objects and then constructing syntax out of the category shows that the syntax consists of *no more* than the rules of the category. 
 
