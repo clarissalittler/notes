@@ -50,6 +50,9 @@ Now to turn this into a pipelined version we need to add registers between each 
      Skimming this section it sounds like the MIPS example is one of the easier architectures to handle exceptions. In comparison there are some architectures where operations can take more than one clock cycle, which is a definite complication, and architectures where state is changing in the middle of an instruction being execute rather than at the well-defined operation points of MIPS.
 
      The tl;dr lesson of this section and the previous one is that a certain amount of overhead is needed to make sure that pipelining has as few delays as possible and that the particular of the instruction set design makes a big difference about how easy it is to deal with interrupts.
+*** Random Bits on Forwarding
+    Alright, so because this was something I figured out while studying but never wrote down I want to do so now:
+    there's not just data forwarding because of loads or depending on the result of the alu, but rather there's also data forwarding when it comes to *jumps*. Since you don't want to only calculate when you need the jump after having loaded several other instructions into the pipeline, instead we can make calculating if the jump will be taken as a part of the instruction decoding phase. This means, though, that we need more forwarding to the ID phase to make this reasonable without introducing yet another source of stalls
 ** Ch1
 *** Estimating reliability
     Well the main thing we covered on the topic is that mean time to failure of any one of an independent set of components can be estimated as the inverse of the sum of their failures-per-unit-time. For a set of redundant components, we estimate the reliability to be 
