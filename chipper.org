@@ -53,7 +53,7 @@ Now to turn this into a pipelined version we need to add registers between each 
 *** Random Bits on Forwarding
     Alright, so because this was something I figured out while studying but never wrote down I want to do so now:
     there's not just data forwarding because of loads or depending on the result of the alu, but rather there's also data forwarding when it comes to *jumps*. Since you don't want to only calculate when you need the jump after having loaded several other instructions into the pipeline, instead we can make calculating if the jump will be taken as a part of the instruction decoding phase. This means, though, that we need more forwarding to the ID phase to make this reasonable without introducing yet another source of stalls
-** Ch1
+** Ch 1
 *** Estimating reliability
     Well the main thing we covered on the topic is that mean time to failure of any one of an independent set of components can be estimated as the inverse of the sum of their failures-per-unit-time. For a set of redundant components, we estimate the reliability to be 
 
@@ -92,3 +92,172 @@ as the rations, and as a reminder because this is a concept I use about once a l
 \]
 ** Ch 3: More on Pipelining
    https://en.wikipedia.org/wiki/Superscalar_processor
+*** Instruction Level Parallelism
+**** Dependencies
+***** Data Dependencies
+      The more obviously named kind of dependency, where data being *computed* by one instruction 
+      is being used by other instructions, so something like
+
+      #+BEGIN_EXAMPLE
+      LOOP: L.D F0 0(R1)
+            ADD.D F4,F0,F2
+            S.D F4,0(R1)
+            DADDUI R1,R1,#-8
+            BNE R1,R2,LOOP
+      #+END_EXAMPLE
+      then instruction 2 has a data dependence on instruction 1
+      and instruction 3 has a data dependence on instruction 2
+      and similarly instruction 5 is dependent on instruction 4
+***** Name Dependencies
+      Name dependence means that something like
+      #+BEGIN_EXAMPLE
+      ADD.D F4,F0,F1
+      SUB.D F4,F8,F9
+      #+END_EXAMPLE
+      which means that you can't swap the order of these since, in the case of an interrupt or something like that we *need* to keep the order right
+
+      the other thing is something like
+      #+BEGIN_EXAMPLE
+      ADD.D F0,F1,F2
+      SUB.D F1,F2,F3
+      #+END_EXAMPLE
+
+      which means that you can't swap the order of events without causing the wrong data from the register to be fetched
+***** Control Dependence
+      this is a little more subtle and is about the ways that instructions being executed depends on the control flow. Basically, we need to be certain that exceptions and data flow are preserved properly. Any time that an instruction is executed when its not supposed to it can mess either of these things up.
+***** Dependency chart 
+      | Instruction producing result | Instruction using result | Latency |
+      | FP ALU                       | FP ALU                   |       3 |
+      | FP ALU                       | S.D                      |       2 |
+      | L.D                          | FP ALU                   |       1 |
+      | L.D                          | S.D                      |       0 |
+***** Branch prediction
+      The most simple form of branch prediction is just keeping a simple set of bits to determine what to do based on prior branches. For example, if you have a single bit then if the bit is a 0 you're going to assume that the branch is not-taken, but if the bit is 1 you're going to assume that the branch is taken. If you're wrong, you flip the bit. That's great, right? The reason why this works so well is that, in general, when you're doing something like a loop you're going to repeat the action you just did almost every time. 
+
+      Now, you can always bump it up to multiple bits and do something like the following scheme: the msb is going to determine our prediction, and if we're wrong we start appropriately flipping the less significant bits until we end up flipping the msb again. So something like
+      00 -> branch taken -> 01 -> branch taken -> 11 -> branch not taken -> 1 0 -> branch taken -> 1 1
+      something like that. 
+
+      NOTE: with this schema it applies to all branches globally. There's only one set of bits for this prediction. Different branches are all going to mess around with these bits.
+
+      There's also correlated branch prediction, which is pretty cute: you keep around n*2^m bits so you can make a prediction based on the previous m branches using n bits to make the decision based on prior accuracy, so its a 2-fold notion of history.
+
+      Tournament selection: alternate between local and global prediction based on past performance. (Don't really understand much about this idea yet)
+***** Loop Unrolling
+      Loop unrolling, in this context, is a way of giving yourself a lot more to play with in terms of having instructions to shuffle around for reordering. That's at least the very rough motivation. So let's take a simple example such as
+      #+BEGIN_EXAMPLE
+      LOOP : 
+      L.D F0, 0(R1)
+      ADD.D F4, F0, F2
+      S.D F4, 0(R1)
+      DADDUI R1,R1, #-8
+      BNE R1, R2, LOOP
+      #+END_EXAMPLE
+then because of necessary stalling this is actually going to be
+      #+BEGIN_EXAMPLE
+      LOOP : 
+      L.D F0, 0(R1)
+      -
+      ADD.D F4, F0, F2
+      -
+      -
+      S.D F4, 0(R1)
+      DADDUI R1,R1, #-8
+      -
+      BNE R1, R2, LOOP
+      #+END_EXAMPLE
+      and unrolled two times it's going to look something more like
+      #+BEGIN_EXAMPLE
+      LOOP:
+      L.D F0, 0(R1)
+      L.D F1, -8(R1)
+      ADD.D F4, F0, F2
+      ADD.D F5, F1, F2
+      DADDUI R1,R1, #-16
+      S.D F4, 16(R1)
+      S.D F5, 8(R1)
+      BNE R1, R2, LOOP
+      #+END_EXAMPLE
+
+Now how about some other examples? Let's say something like 
+      #+BEGIN_EXAMPLE
+      LOOP:
+      L.D F0,0(R1)
+      L.D F2,0(R2)
+      -
+      MULT.D F4,F0,F2
+      -
+      -
+      -
+      ADD.D F4,F4,F6
+      -
+      -
+      S.D F4,0(R1)
+      DADDUI R1,R1,#-8
+      DADDUI R2,R2,#-8
+      BNE R1,R3, LOOP
+      #+END_EXAMPLE
+then our unrolling three times is going to look like
+     #+BEGIN_EXAMPLE
+      LOOP: 
+      L.D F0,0(R1)
+      L.3 F2,0(R2)
+      -
+      MULT.D F4,F0,F2
+      -
+      -
+      -
+      ADD.D F4,F4,F6
+      -
+      -
+      S.D F4,0(R1)
+      L.D F8,-8(R1)
+      L.D F10,-8(R2)
+      -
+      MULT.D F12,F8,F10
+      -
+      -
+      -
+      ADD.D F12,F12,F6
+      -
+      -
+      S.D F12,-8(R1)      
+      L.D F14,-16(R1)
+      L.D F16,-16(R2)
+      -
+      MULT.D F18,F14,F16
+      -
+      -
+      -
+      ADD.D F18,F18,F6
+      -
+      -
+      S.D F18,-16(R1)
+      DADDUI R1,R1,#-24
+      DADDUI R2,R2,#-24
+      BNE R1,R3, LOOP      
+     #+END_EXAMPLE
+     Now to schedule this it's going to look like
+     #+BEGIN_EXAMPLE
+      LOOP: 
+      L.D F0,0(R1)
+      L.D F2,0(R2)
+      L.D F8,-8(R1)
+      L.D F10,-8(R2)
+      L.D F14,-16(R1)
+      L.D F16,-16(R2)
+      MULT.D F4,F0,F2
+      MULT.D F12,F8,F10
+      MULT.D F18,F14,F16
+      DADDUI R1,R1,#-24
+      DADDUI R2,R2,#-24
+      ADD.D F4,F4,F6
+      ADD.D F12,F12,F6
+      ADD.D F18,F18,F6
+      S.D F4,24(R1)
+      S.D F12,16(R1)      
+      S.D F18,8(R1)
+      BNE R1,R3, LOOP      
+     #+END_EXAMPLE
+***** Scoreboarding
+ 
