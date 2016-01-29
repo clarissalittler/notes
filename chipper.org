@@ -131,6 +131,8 @@ as the rations, and as a reminder because this is a concept I use about once a l
       | FP ALU                       | S.D                      |       2 |
       | L.D                          | FP ALU                   |       1 |
       | L.D                          | S.D                      |       0 |
+
+What does this really mean, though? It means that if you have something like a FP arithmetic operation then this will take a total of 8 cycles instead of 5, with its alu operation taking 4 cycles and being pipeline. That's where this latency comes from. The difference in latency between the fp alu and the s.d is simply that there's an extra cycle before the s.d needs to have the data (right?)
 ***** Branch prediction
       The most simple form of branch prediction is just keeping a simple set of bits to determine what to do based on prior branches. For example, if you have a single bit then if the bit is a 0 you're going to assume that the branch is not-taken, but if the bit is 1 you're going to assume that the branch is taken. If you're wrong, you flip the bit. That's great, right? The reason why this works so well is that, in general, when you're doing something like a loop you're going to repeat the action you just did almost every time. 
 
