@@ -140,11 +140,11 @@ What does this really mean, though? It means that if you have something like a F
       00 -> branch taken -> 01 -> branch taken -> 11 -> branch not taken -> 1 0 -> branch taken -> 1 1
       something like that. 
 
-      NOTE: with this schema it applies to all branches globally. There's only one set of bits for this prediction. Different branches are all going to mess around with these bits.
-
       There's also correlated branch prediction, which is pretty cute: you keep around n*2^m bits so you can make a prediction based on the previous m branches using n bits to make the decision based on prior accuracy, so its a 2-fold notion of history.
 
-      Tournament selection: alternate between local and global prediction based on past performance. (Don't really understand much about this idea yet)
+      UPDATE [2016-01-29 Fri] : there's actually something I should discuss here because I didn't really understand the details at first. Alright, so the local information of the branches are stored in a lookup table indexed by the bottom x bits of the branch's instruction address. In a correlating branch predictor, the last-m branches part is a global indicator and the result of the last-m-branches is concatenated onto the low bits to create a new indexed table, and this is why if you store n-bits for each predictor and you predict based on x-entries and m-previous branches the total data is x * n * 2^m. 
+
+      Tournament selection: alternate between local and global prediction based on past performance. The book barely explains this part, but [[http://www.eng.utah.edu/~cs6810/pres/13-6810-09.pdf][here]] are some slides that mention it in at least a little more detail. It's a lot simpler than they made it sound. The idea is that a *global* correlating branch prediction is about previous m branches period, local correlating branch prediction is about the store history of the branch and its last l-branches. Combining these two would cause a massive explosion in size, but "additively" using them by tying them together with a *third* predictor which says which predictor to pick allows you to get more bang for your buck on predictions
 ***** Loop Unrolling
       Loop unrolling, in this context, is a way of giving yourself a lot more to play with in terms of having instructions to shuffle around for reordering. That's at least the very rough motivation. So let's take a simple example such as
       #+BEGIN_EXAMPLE
@@ -262,4 +262,12 @@ then our unrolling three times is going to look like
       BNE R1,R3, LOOP      
      #+END_EXAMPLE
 ***** Scoreboarding
- 
+      Alright, so Tomasulo's "algorithm" (which is more of a design scheme than what I'd call an algorithm) 
+      https://en.wikipedia.org/wiki/Tomasulo_algorithm
+      This is basically the scheme for how to allow controlled out of order executions while maintaining proper data flow and eliminating hazards.
+
+      The execution of an instruction gets broken down to three basic phases
+      1. Issue
+      2. Execute
+      3. Write result
+
