@@ -279,6 +279,10 @@ There's a couple of physical pieces here that are very important to the story. T
 
 **** Superscalar
      The tl;dr is that we issue multiple instructions per cycle.
+
+     One basic idea is that we can issue, say, one floating point and one integer pipeline instruction per cycle. Without dynamic scheduling these are going to need to be very conservative with hazards: we can't issue instructions that will have any kind of dependence in the same cycle, instead needing to stall. Stalling is also way more effectively costly in a superscalar processor because you're losing out on a number of instructions slots. 
+
+     Of course, you could adapt the Tomasolu scheme to a superscalar architecture and resolve a lot of these issues by just using the reservation stations just like normal in order to synchronize up the multiple instructions. One bottle neck with Tomasolu + superscalar is access to the CDB (although weirdly in class we were told you could potentially have both the integer and floating point operations broadcasting over the CDB at the same time)
 * Footnotes
 
-[fn:1] One detail about this formulation is that we assume that there's enough functional units (or at least that the functional units are pipelined) so that instructions can be issued to the functional units whenever they're ready. 
+[fn:1] One detail about this formulation is that we assume that there's enough functional units (or at least that the functional units are pipelined) so that instructions can be issued to the functional units whenever they're ready.
