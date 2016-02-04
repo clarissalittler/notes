@@ -90,8 +90,7 @@ as the rations, and as a reminder because this is a concept I use about once a l
 \[
   speedup_{overall} = \frac{1}{(1-\text{frac}) + \frac{frac}{speedup_{enhanced}}}
 \]
-** Ch 3: More on Pipelining
-   https://en.wikipedia.org/wiki/Superscalar_processor
+** Ch 3: ILP
 *** Instruction Level Parallelism
 **** Dependencies
 ***** Data Dependencies
@@ -278,11 +277,14 @@ There's a couple of physical pieces here that are very important to the story. T
     We have an instruction /I/ that is next in the queue to be dispatched (we also assume that it's a floating point instruction so that the actual operation is long enough to cause issues with out of order processing (what actually happens with loads and stores though that are out of order in the integer pipeline? I mean if you have an operation that uses a load immediately after it then even with forwarding there's a 1-cycle delay. I suppose it doesn't matter much, but it bothers me that this isn't described in the text)). This instruction is going to be put in one of the reservation stations for its operation, but what happens then depends on the state of its operands. If the operands are already in registers then everything is fine and that data is loaded into the reservation station. Otherwise, if the operation depends on operands that are currently running then we put the operation in a place in the reservation station but we put the appropriate link between the reservation table entry for the operation and for its operands (that's the Qj and Qk). When a value is filled in then it's broadcast over the CDB (common data bus) and all the reservation stations that need it "fill in" the value and perform the operation. [fn:1] There are seperate reservations stations/stores/buffers for stores, loads, and possibly different kinds of arithmetic units (like add and mult can be separate). These reservation stations are cleared once we make the broadcast. 
 
 **** Superscalar
+   https://en.wikipedia.org/wiki/Superscalar_processor
+
      The tl;dr is that we issue multiple instructions per cycle.
 
      One basic idea is that we can issue, say, one floating point and one integer pipeline instruction per cycle. Without dynamic scheduling these are going to need to be very conservative with hazards: we can't issue instructions that will have any kind of dependence in the same cycle, instead needing to stall. Stalling is also way more effectively costly in a superscalar processor because you're losing out on a number of instructions slots. 
 
      Of course, you could adapt the Tomasolu scheme to a superscalar architecture and resolve a lot of these issues by just using the reservation stations just like normal in order to synchronize up the multiple instructions. One bottle neck with Tomasolu + superscalar is access to the CDB (although weirdly in class we were told you could potentially have both the integer and floating point operations broadcasting over the CDB at the same time)
+**** Register Renaming
 * Footnotes
 
 [fn:1] One detail about this formulation is that we assume that there's enough functional units (or at least that the functional units are pipelined) so that instructions can be issued to the functional units whenever they're ready.
