@@ -285,6 +285,12 @@ There's a couple of physical pieces here that are very important to the story. T
 
      Of course, you could adapt the Tomasolu scheme to a superscalar architecture and resolve a lot of these issues by just using the reservation stations just like normal in order to synchronize up the multiple instructions. One bottle neck with Tomasolu + superscalar is access to the CDB (although weirdly in class we were told you could potentially have both the integer and floating point operations broadcasting over the CDB at the same time)
 **** Register Renaming
+     So the basic idea here is that you can maintain a pool of physical registers and keep a map that links in-process instructions
+     to the physical registers, swapping around as needed the links between the instruction registers and physical registers.
+
+     It's not particularly complicated.
+** Ch 4
+*** Vector operations
 * Footnotes
 
 [fn:1] One detail about this formulation is that we assume that there's enough functional units (or at least that the functional units are pipelined) so that instructions can be issued to the functional units whenever they're ready.
