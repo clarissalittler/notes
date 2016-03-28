@@ -1,0 +1,13 @@
+* Game Theory
+** Why am I reading this?
+   Well, there's a few reasons: I have an interest in systems and interactions, which game theory has a lot of to say about. I mean, I've also been hoping to learn at least a bit of economics for years.
+
+   More than that, though, there's a lot of connections between games, strategies, and language semantics. Indeed, Girard references at least some notions of strategies in Locus Solum.
+** Non-cooperative games
+   So the text I'm reading (Osborne and Rubinstein) starts with Nash equillibria. The basic idea of a Nash equillibrium is that it's set of decisions in the game where for each player, if their opponents' moves are considered fixed, they have no other choice of action that would improve their outcome. 
+
+   The famous example I think everyone's heard about, the prisoner's dilemma, has two players, and they have choices of confess or deny. If your buddy confesses while you deny, you face a major penalty, and visa-versa. If you both confess you face a small penalty. If you both deny you face an even smaller penalty. While ideally if you could collude then both denying is the natural option, but if you can't guarantee what your buddy will do then the "safest" position, the one where you can't improve your position by making a difference choice, is when you both confess. 
+
+   Nash equillibria can be shown to exist via the Kakutani fixed point theorem. I don't entirely see the intuitive notion of these fixed points, though, and what the convexity requirement means intuitively. 
+*** Kakutani fixed point theorem
+https://en.wikipedia.org/wiki/Kakutani_fixed-point_theorem
